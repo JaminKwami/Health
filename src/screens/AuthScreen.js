@@ -1,15 +1,16 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Animated, Alert } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, TouchableOpacity, Animated, Alert, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import Svg, { Path, G } from 'react-native-svg';
+import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Path, Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
 
 const AuthScreen = () => {
   const navigation = useNavigation();
-  const fadeAnim = new Animated.Value(0);
-  const slideAnim = new Animated.Value(30);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
 
-  React.useEffect(() => {
+  useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -35,31 +36,27 @@ const AuthScreen = () => {
   const handleAppleSignIn = () => {
     Alert.alert('Apple Sign In', 'Apple authentication would be implemented here');
   };
-
-  const LeafIcon = () => (
+  const SimpleLeafIcon = () => (
     <Svg width="60" height="60" viewBox="0 0 24 24" fill="none">
+      <Defs>
+        <RadialGradient id="authLeafGrad" cx="50%" cy="50%" r="70%">
+          <Stop offset="0%" stopColor="#667eea" />
+          <Stop offset="100%" stopColor="#764ba2" />
+        </RadialGradient>
+      </Defs>
       <Path
         d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"
-        stroke="#2A2AFF"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="#2A2AFF"
+        fill="url(#authLeafGrad)"
       />
       <Path
         d="M16 8L2 22"
-        stroke="#2A2AFF"
-        strokeWidth="2"
+        stroke="#ffffff"
+        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        opacity="0.8"
       />
-      <Path
-        d="M17.5 15H9"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <Circle cx="14" cy="10" r="1" fill="#ffffff" opacity="0.7" />
     </Svg>
   );
 
@@ -97,96 +94,132 @@ const AuthScreen = () => {
     <Svg width="24" height="24" viewBox="0 0 24 24">
       <Path
         d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"
-        fill="black"
+        fill="#000000"
       />
     </Svg>
   );
-
-  const AuthButton = ({ onPress, icon, text, bgColor, textColor, borderColor }) => (
-    <Animated.View
-      style={{
-        opacity: fadeAnim,
-        transform: [{ translateY: slideAnim }],
-      }}
-      className="w-full mb-4"
+  const SimpleAuthButton = ({ onPress, icon, text, bgColors, textColor, borderColor }) => (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.8}
+      className="w-full mb-4 overflow-hidden rounded-xl"
     >
-      <TouchableOpacity
-        onPress={onPress}
-        className={`${bgColor} py-4 px-6 rounded-2xl flex-row items-center justify-center shadow-sm ${borderColor ? 'border border-gray-200' : ''}`}
-        activeOpacity={0.8}
+      <LinearGradient
+        colors={bgColors}
+        style={{
+          paddingVertical: 16,
+          paddingHorizontal: 24,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
       >
+        {borderColor && (
+          <View className="absolute inset-0 border border-gray-200 rounded-xl" />
+        )}
         <View className="mr-3">
           {icon}
         </View>
-        <Text className={`${textColor} text-lg font-poppins-medium`}>
+        <Text className={`${textColor} text-lg font-poppins-semibold`}>
           {text}
         </Text>
-      </TouchableOpacity>
-    </Animated.View>
+      </LinearGradient>
+    </TouchableOpacity>
   );
-
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-      <View className="flex-1 justify-center px-8">
-        {/* Header */}
-        <Animated.View
-          style={{
-            opacity: fadeAnim,
-            transform: [{ translateY: slideAnim }],
-          }}
-          className="items-center mb-12"
-        >
-          <View className="w-20 h-20 bg-gray-50 rounded-full justify-center items-center mb-8">
-            <LeafIcon />
-          </View>
-          <Text className="text-2xl font-poppins-semibold text-gray-900 mb-2">
-            Continue with...
-          </Text>
-          <Text className="text-base font-poppins text-gray-600 text-center">
-            Choose your preferred sign-in method
-          </Text>
-        </Animated.View>
+    <SafeAreaView style={{ flex: 1 }}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+      
+      <LinearGradient
+        colors={['#f8fafc', '#e2e8f0']}
+        style={{ flex: 1 }}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View className="flex-1 justify-center px-8">
+          {/* Header section */}
+          <Animated.View
+            style={{
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            }}
+            className="items-center mb-12"
+          >
+            {/* Simple logo */}
+            <View className="mb-6">
+              <SimpleLeafIcon />
+            </View>
 
-        {/* Auth Buttons */}
-        <View className="w-full">
-          <AuthButton
-            onPress={handleGoogleSignIn}
-            icon={<GoogleIcon />}
-            text="Continue with Google"
-            bgColor="bg-white"
-            textColor="text-gray-700"
-            borderColor={true}
-          />
+            <Text className="text-3xl font-poppins-bold text-gray-900 mb-3 tracking-tight">
+              Welcome Back
+            </Text>
+            <Text className="text-lg font-poppins text-gray-600 text-center leading-6 max-w-sm">
+              Choose your preferred method to continue
+            </Text>
+          </Animated.View>
 
-          <AuthButton
-            onPress={handleFacebookSignIn}
-            icon={<FacebookIcon />}
-            text="Continue with Facebook"
-            bgColor="bg-blue-600"
-            textColor="text-white"
-          />
+          {/* Auth buttons */}
+          <Animated.View
+            style={{
+              opacity: fadeAnim,
+              transform: [{ translateY: slideAnim }],
+            }}
+            className="w-full"
+          >
+            <SimpleAuthButton
+              onPress={handleGoogleSignIn}
+              icon={<GoogleIcon />}
+              text="Continue with Google"
+              bgColors={['#ffffff', '#f8fafc']}
+              textColor="text-gray-700"
+              borderColor={true}
+            />
 
-          <AuthButton
-            onPress={handleAppleSignIn}
-            icon={<AppleIcon />}
-            text="Continue with Apple"
-            bgColor="bg-black"
-            textColor="text-white"
-          />
+            <SimpleAuthButton
+              onPress={handleFacebookSignIn}
+              icon={<FacebookIcon />}
+              text="Continue with Facebook"
+              bgColors={['#1877f2', '#4267B2']}
+              textColor="text-white"
+            />
+
+            <SimpleAuthButton
+              onPress={handleAppleSignIn}
+              icon={<AppleIcon />}
+              text="Continue with Apple"
+              bgColors={['#000000', '#1a1a1a']}
+              textColor="text-white"
+            />
+          </Animated.View>
+
+          {/* Simple divider */}
+          <Animated.View
+            style={{ opacity: fadeAnim }}
+            className="flex-row items-center my-8"
+          >
+            <View className="flex-1 h-px bg-gray-300" />
+            <Text className="mx-4 text-gray-500 font-poppins text-sm">
+              Secure & Private
+            </Text>
+            <View className="flex-1 h-px bg-gray-300" />
+          </Animated.View>
+
+          {/* Footer */}
+          <Animated.View
+            style={{ opacity: fadeAnim }}
+            className="items-center"
+          >
+            <Text className="text-sm font-poppins text-gray-500 text-center leading-5 max-w-sm">
+              By continuing, you agree to our{' '}
+              <Text className="text-blue-600 font-poppins-semibold">Terms</Text>
+              {' '}and{' '}
+              <Text className="text-blue-600 font-poppins-semibold">Privacy Policy</Text>
+            </Text>
+          </Animated.View>
         </View>
-
-        {/* Footer */}
-        <Animated.View
-          style={{
-            opacity: fadeAnim,
-          }}
-          className="mt-8"
-        >
-          <Text className="text-xs font-poppins text-gray-500 text-center leading-5">
-            By continuing, you agree to our Terms of Service and Privacy Policy
-          </Text>
-        </Animated.View>
-      </View>
+      </LinearGradient>
     </SafeAreaView>
   );
 };

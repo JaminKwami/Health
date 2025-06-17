@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, FlatList, Dimensions, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, FlatList, Dimensions, TouchableOpacity, Animated, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -10,21 +10,24 @@ const { width: screenWidth } = Dimensions.get('window');
 const onboardingData = [
   {
     id: '1',
-    title: 'Welcome to Core Nest',
-    description: 'Your safe space for mental wellness and personal growth.',
-    icon: 'mind',
+    title: 'Welcome to Your\nMindful Journey',
+    description: 'Discover inner peace and mental clarity with personalized wellness tools.',
+    icon: 'mindfulness',
+    gradient: ['#667eea', '#764ba2'],
   },
   {
     id: '2',
-    title: 'Track Your Journey',
-    description: 'Monitor your mood, habits, and progress with personalized insights.',
-    icon: 'chart',
+    title: 'Track & Reflect\nYour Progress',
+    description: 'Monitor your emotional journey with beautiful insights and gentle reminders.',
+    icon: 'growth',
+    gradient: ['#f093fb', '#f5576c'],
   },
   {
     id: '3',
-    title: 'Find Your Peace',
-    description: 'Access guided meditations, breathing exercises, and mindfulness tools.',
+    title: 'Find Your\nInner Peace',
+    description: 'Access guided meditations, breathing exercises, and mindfulness practices.',
     icon: 'peace',
+    gradient: ['#4facfe', '#00f2fe'],
   },
 ];
 
@@ -32,7 +35,15 @@ const OnboardingScreen = () => {
   const navigation = useNavigation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef(null);
-  const buttonOpacity = useRef(new Animated.Value(1)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 600,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   const handleNext = () => {
     if (currentIndex < onboardingData.length - 1) {
@@ -48,70 +59,54 @@ const OnboardingScreen = () => {
     navigation.replace('Join');
   };
 
-  const handleScroll = (event) => {
-    const slideSize = event.nativeEvent.layoutMeasurement.width;
-    const currentIndex = Math.floor(event.nativeEvent.contentOffset.x / slideSize);
-    setCurrentIndex(currentIndex);
-  };
-
   const renderIcon = (iconType) => {
+    const iconProps = { width: "80", height: "80", viewBox: "0 0 24 24", fill: "none" };
+
     switch (iconType) {
-      case 'mind':
+      case 'mindfulness':
         return (
-          <Svg width="80" height="80" viewBox="0 0 24 24" fill="none">
-            <Path
-              d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"
-              fill="#2A2AFF"
-            />
-            <Circle cx="9" cy="9" r="1.5" fill="white" />
-            <Circle cx="15" cy="9" r="1.5" fill="white" />
+          <Svg {...iconProps}>
+            <Circle cx="12" cy="12" r="10" fill="#ffffff" />
             <Path
               d="M8 14s1.5 2 4 2 4-2 4-2"
-              stroke="white"
-              strokeWidth="1.5"
+              stroke="#667eea"
+              strokeWidth="2"
               strokeLinecap="round"
             />
+            <Circle cx="9" cy="9" r="1.5" fill="#667eea" />
+            <Circle cx="15" cy="9" r="1.5" fill="#667eea" />
           </Svg>
         );
-      case 'chart':
+      case 'growth':
         return (
-          <Svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+          <Svg {...iconProps}>
             <Path
-              d="M3 3v18h18"
-              stroke="#2A2AFF"
-              strokeWidth="2"
+              d="M3 21L21 3"
+              stroke="#ffffff"
+              strokeWidth="3"
               strokeLinecap="round"
-              strokeLinejoin="round"
             />
-            <Path
-              d="M7 16l4-4 4 4 6-6"
-              stroke="#2A2AFF"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <Circle cx="7" cy="16" r="2" fill="#2A2AFF" />
-            <Circle cx="11" cy="12" r="2" fill="#2A2AFF" />
-            <Circle cx="15" cy="16" r="2" fill="#2A2AFF" />
-            <Circle cx="21" cy="10" r="2" fill="#2A2AFF" />
+            <Circle cx="7" cy="17" r="3" fill="#ffffff" />
+            <Circle cx="12" cy="12" r="2.5" fill="#ffffff" />
+            <Circle cx="17" cy="7" r="3" fill="#ffffff" />
           </Svg>
         );
       case 'peace':
         return (
-          <Svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+          <Svg {...iconProps}>
             <Path
               d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"
-              fill="#2A2AFF"
+              fill="#ffffff"
             />
             <Path
               d="M16 8L2 22"
-              stroke="#2A2AFF"
+              stroke="#667eea"
               strokeWidth="2"
               strokeLinecap="round"
             />
             <Path
               d="M17.5 15H9"
-              stroke="white"
+              stroke="#667eea"
               strokeWidth="2"
               strokeLinecap="round"
             />
@@ -122,83 +117,91 @@ const OnboardingScreen = () => {
     }
   };
 
-  const renderSlide = ({ item, index }) => (
+  const renderSlide = ({ item }) => (
     <View style={{ width: screenWidth }} className="flex-1">
-      {/* Blue curved background */}
-      <View className="h-80 relative">
-        <LinearGradient
-          colors={['#2A2AFF', '#4A4AFF']}
-          style={{
-            flex: 1,
-            borderBottomLeftRadius: 50,
-            borderBottomRightRadius: 50,
-          }}
-        />
-        {/* Icon positioned over the curve */}
-        <View className="absolute bottom-[-40] left-1/2 transform -translate-x-1/2 w-20 h-20 bg-white rounded-full justify-center items-center shadow-lg">
-          {renderIcon(item.icon)}
+      <LinearGradient
+        colors={item.gradient}
+        style={{ flex: 1 }}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View className="flex-1 justify-center items-center px-8">
+          {/* Simple icon */}
+          <View className="w-32 h-32 justify-center items-center rounded-3xl bg-white/20 mb-12">
+            {renderIcon(item.icon)}
+          </View>
+
+          {/* Clean text content */}
+          <View className="items-center mb-16">
+            <Text className="text-white text-3xl font-poppins-bold text-center leading-tight mb-6">
+              {item.title}
+            </Text>
+            <Text className="text-white/90 text-lg font-poppins text-center leading-7 max-w-sm">
+              {item.description}
+            </Text>
+          </View>
         </View>
-      </View>
 
-      {/* Content */}
-      <View className="flex-1 px-8 pt-16 justify-center">
-        <Text className="text-3xl font-poppins-bold text-gray-900 text-center mb-4">
-          {item.title}
-        </Text>
-        <Text className="text-lg font-poppins text-gray-600 text-center leading-7">
-          {item.description}
-        </Text>
-      </View>
+        {/* Bottom section */}
+        <View className="pb-12 px-8">
+          {/* Simple pagination dots */}
+          <View className="flex-row justify-center mb-8">
+            {onboardingData.map((_, i) => (
+              <View
+                key={i}
+                className={`w-2 h-2 rounded-full mx-1 ${
+                  i === currentIndex ? 'bg-white' : 'bg-white/30'
+                }`}
+              />
+            ))}
+          </View>
 
-      {/* Pagination dots */}
-      <View className="flex-row justify-center mb-8">
-        {onboardingData.map((_, i) => (
-          <View
-            key={i}
-            className={`w-3 h-3 rounded-full mx-1 ${
-              i === currentIndex ? 'bg-primary' : 'bg-gray-300'
-            }`}
-          />
-        ))}
-      </View>
-
-      {/* Button */}
-      <View className="px-8 pb-10">
-        <Animated.View style={{ opacity: buttonOpacity }}>
+          {/* Clean button */}
           <TouchableOpacity
             onPress={handleNext}
-            className="bg-primary py-4 px-8 rounded-2xl shadow-lg"
             activeOpacity={0.8}
+            className="bg-white/90 py-4 px-8 rounded-2xl"
           >
-            <Text className="text-white text-lg font-poppins-semibold text-center">
-              {currentIndex === onboardingData.length - 1 ? 'Get Started' : 'Next'}
+            <Text className="text-gray-800 text-lg font-poppins-semibold text-center">
+              {currentIndex === onboardingData.length - 1 ? 'Begin Journey' : 'Continue'}
             </Text>
           </TouchableOpacity>
-        </Animated.View>
-      </View>
+        </View>
+      </LinearGradient>
     </View>
   );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: 'white' }}>
-      {/* Skip button */}
-      <View className="absolute top-12 right-6 z-10">
-        <TouchableOpacity onPress={handleSkip} className="py-2 px-4">
-          <Text className="text-gray-600 font-poppins-medium">Skip</Text>
+    <SafeAreaView style={{ flex: 1 }}>
+      <StatusBar barStyle="light-content" />
+      
+      {/* Simple skip button */}
+      <View className="absolute top-16 right-6 z-10">
+        <TouchableOpacity
+          onPress={handleSkip}
+          className="bg-white/20 px-4 py-2 rounded-full"
+          activeOpacity={0.7}
+        >
+          <Text className="text-white font-poppins-medium">Skip</Text>
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        ref={flatListRef}
-        data={onboardingData}
-        renderItem={renderSlide}
-        keyExtractor={(item) => item.id}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={handleScroll}
-        scrollEventThrottle={16}
-      />
+      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+        <FlatList
+          ref={flatListRef}
+          data={onboardingData}
+          renderItem={renderSlide}
+          keyExtractor={(item) => item.id}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={(event) => {
+            const slideSize = event.nativeEvent.layoutMeasurement.width;
+            const currentIndex = Math.floor(event.nativeEvent.contentOffset.x / slideSize);
+            setCurrentIndex(currentIndex);
+          }}
+        />
+      </Animated.View>
     </SafeAreaView>
   );
 };
