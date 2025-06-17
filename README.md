@@ -11,13 +11,15 @@
 
 ## 🚀 Tech Stack
 
-- **Expo SDK 52** - Latest stable version
+- **Expo SDK 53** - Latest stable version with React 19 support
+- **React 19.0.0** - Latest React with improved performance
+- **React Native 0.79.3** - Latest React Native version
 - **React Navigation v6** - Stack navigation
 - **NativeWind** - TailwindCSS for React Native styling
-- **React Native Reanimated v3** - Smooth animations
-- **React Native SVG** - Custom vector icons
+- **React Native Reanimated v3.17** - Smooth animations with latest features
+- **React Native SVG 15.11** - Custom vector icons
 - **Expo Google Fonts (Poppins)** - Typography
-- **React Native Safe Area Context** - Safe area handling
+- **React Native Safe Area Context v5** - Enhanced safe area handling
 
 ## 🎨 Design System
 
